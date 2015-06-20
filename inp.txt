@@ -3,9 +3,14 @@ INP x
 INP y
 INP a,b
 IF x>1
-OUT x
+OUT "x$is$greater$than$1"
+IF y>2
+OUT "sum$x$+$y$is$greater$than$2$"
 ELSE
-OUT y
+OUT "sum$still$is$below$par$standards"
+FI
+ELSE
+OUT "x$is$less$than$1"
 FI
 OPR a=x+y+b
 OUT a

@@ -44,6 +44,8 @@ for line in fileinp:
 		'''
 		charlist = charlist.split(',')
 		for var in charlist:
+			var = var.replace('$',' ')
+			print var
 			sttr += '\t'*indent +'print ' + var + '\n'
 
 	elif command == 'IF':
