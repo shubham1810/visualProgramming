@@ -2,6 +2,13 @@ START
 INP x
 INP y
 INP a,b
+IF x>1
 OUT x
-OUT y,a,b
+ELSE
+OUT y
+FI
+OPR a=x+y+b
+OUT a
+OPR b=x*y*b
+OUT b
 STOP

@@ -1,5 +1,6 @@
 # python, parsing file for generating python code of flow chart 
 
+from six import string_types
 # input file
 inpfile = 'inp.txt'
 outfile = 'pycode.py'
@@ -8,8 +9,8 @@ outfile = 'pycode.py'
 fileinp  = open(inpfile,'r')
 fileout  = open(outfile,'w')
 
-flagstart = 0
 sttr =''
+indent = 0 
 
 for line in fileinp:
 
@@ -18,25 +19,48 @@ for line in fileinp:
 	command = wlist[0]
 
 	if command == 'START':
-		flagstart = 1
 		sttr = '#pycode.py\n'
+		indent = 0
 
-	elif command == 'INP' and flagstart == 1:
+	elif command == 'INP':
 		charlist = wlist[1]
 		charlist = charlist.split(',')
 
 		for var in charlist:
-			sttr += var + ' = raw_input("enter variable ' + var + '")\n'
+			sttr += '\t'*indent + var + ' = input("enter variable ' + var + '")\n'
 
-	elif command == 'OUT' and flagstart == 1:
+	elif command == 'OUT':
 		charlist = wlist[1]
+		'''
+		print line + '\n'
+		if "\"" in line:
+			print [i for i, letter in enumerate(line) if letter == "\""]
+
+		
+			if isinstance(var, string_types):
+				sttr += '\t'*indent +'print ' + var + '"\n'
+			else:
+
+		'''
 		charlist = charlist.split(',')
-
 		for var in charlist:
-			sttr += 'print ' + var + '\n'
+			sttr += '\t'*indent +'print ' + var + '\n'
 
-	elif command =='STOP' and flagstart == 1:
-		flagstart = 0;
+	elif command == 'IF':
+		charlist = wlist[1]
+		sttr += '\t'*indent + 'if ' + charlist + ':\n'
+		indent += 1
+
+	elif command == 'ELSE':
+		sttr += '\t'*(indent-1) + 'else:\n'
+
+	elif command == 'OPR':
+		sttr += '\t'*(indent-1) + wlist[1] + '\n'
+
+	elif command == 'FI':
+		indent-=1	
+
+	elif command =='STOP':
 		sttr +='# file ends here\n'
 
 fileout.write(sttr)
