@@ -1,0 +1,7 @@
+START
+INP x
+INP y
+INP a,b
+OUT x
+OUT y,a,b
+STOP
