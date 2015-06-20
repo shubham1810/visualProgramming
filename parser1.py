@@ -39,7 +39,8 @@ for line in fileinp:
 		flagstart = 0;
 		sttr +='# file ends here\n'
 
-fileout.write(sttr)
-#print sttr
+if __name__ == '__main__':
+    fileout.write(sttr)
+    #print sttr
 
 
