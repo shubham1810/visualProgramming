@@ -65,7 +65,8 @@ for line in fileinp:
 	elif command =='STOP':
 		sttr +='# file ends here\n'
 
-fileout.write(sttr)
-#print sttr
+if __name__ == '__main__':
+    fileout.write(sttr)
+    #print sttr
 
 

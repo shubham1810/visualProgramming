@@ -1,0 +1,9 @@
+start
+
+inp x
+inp y
+
+out x
+out y
+
+stop
