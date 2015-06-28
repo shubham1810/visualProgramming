@@ -1,0 +1,72 @@
+		.obj
+		{
+			-webkit-box-shadow: 0px 0px 8px 2px #000000;
+       		-moz-box-shadow: 0px 0px 8px 2px #000000;
+            box-shadow: 0px 0px 8px 2px #000000;
+		}
+		.drag
+		{
+			/*-webkit-box-shadow: 0px 0px 8px 2px #000000;
+       		-moz-box-shadow: 0px 0px 8px 2px #000000;
+            box-shadow: 0px 0px 8px 2px #000000;*/
+		}
+		.circle 
+		{ 
+			width: 50px; 
+			height: 50px; 
+			background: red; 
+			-moz-border-radius: 50px; 
+			-webkit-border-radius: 50px; 
+			border-radius: 50px; 
+		}
+		.diamond
+		{
+			width: 0;
+			height: 0;
+			border: 30px solid transparent;
+			border-bottom-color: red; 
+			position: relative; 
+			top: -30px; 
+		} 
+		.diamond:after 
+		{ 
+			content: ''; 
+			position: absolute; 
+			left: -30px; 
+			top: 30px; 
+			width: 0; 
+			height: 0; 
+			border: 30px 
+			solid transparent; 
+			border-top-color: red; 
+		}
+		.parallelogram 
+		{ 
+			width: 70px; 
+			height: 50px; 
+			-webkit-transform: skew(20deg); 
+			-moz-transform: skew(20deg); 
+			-o-transform: skew(20deg); 
+			background: red; 
+		}
+		.rectangle 
+		{ 
+			width: 70px; 
+			height: 50px; 
+			background: red; 
+		}
+		#sand_box
+		{
+			display:inline;
+			width:600px;
+			height: 700px;
+			float: left;
+			border: 3px solid black;
+		}
+		#toolbar
+		{
+			display:inline;
+			width:200px;
+			height: auto;
+			float: left;
+		}

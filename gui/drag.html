@@ -1,0 +1,74 @@
+<html>
+	<head>
+		<title>Drag and drop</title>
+
+		<script src="jquery-1.11.1.js"></script>
+		<script src="jquery-ui.js"></script>
+		<script src="drag.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="style.css" />
+	</head>
+
+	<body>
+		<div id="toolbar">
+			
+			<h4>Decision box</h4>
+			<div id="decision" class="diamond drag"></div>
+			<h4>Input box</h4>
+			<div id="input" class="parallelogram  drag"></div>
+			<h4>Output box</h4>
+			<div id="output" class="parallelogram  drag"></div>
+			<h4>Processing box</h4>
+			<div id="process" class="rectangle  drag"></div>
+			<h4>Connector</h4>
+			<div id="connector" class="circle drag"></div>
+
+		</div>
+		<div id="sand_box">
+			<h1>Working area</h1>
+		</div>
+	 	
+	 	<script type="text/javascript">
+
+			$(function ()
+			{
+				var $flowchart = "#sand_box" ;
+				var $toolbar = "#toolbar";
+				var $dcobj = ".drag";
+				var $dobj = ".obj";
+				var $str = "started moving";
+				var $arr = 0;
+
+				$($dcobj).draggable({
+			        revert: "invalid", // when not dropped, the item will revert back to its initial position
+					containment: $flowchart+" " + $toolbar,
+					helper: "clone",
+					cursor: "move"
+			    });
+
+				
+			    $($flowchart).droppable({
+			    	accept: $dcobj,
+					activeClass: "ui-state-highlight",
+					drop: function( event, ui ) {
+						
+						var newDiv = $(ui.helper).clone(false).removeClass('ui-draggable ui-draggable-handle ui-draggable-dragging drag')
+						newDiv.addClass("obj");
+						newDiv.attr( "id", function( arr ) 
+							{
+								$arr = $arr + 1;
+								return "div-id" + $arr;
+							})
+			               //.css({position:'relative', left:0, top:0});            
+			           	$(this).append(newDiv);
+			           	$(".obj").draggable({
+					    	containment: $flowchart,
+							cursor: "move"
+					    });
+
+					}
+			    });
+			});
+		</script>
+	</body>
+</html>
