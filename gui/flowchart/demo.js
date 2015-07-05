@@ -1,4 +1,5 @@
-jsPlumb.ready(function () {
+jsPlumb.ready(function () 
+{
 
     var instance = jsPlumb.getInstance({
         // default drag options
@@ -98,12 +99,13 @@ jsPlumb.ready(function () {
     };
 
     // suspend drawing and initialise.
-    instance.batch(function () {
+    instance.batch(function () 
+    {
 
-        _addEndpoints("Window4", ["TopCenter", "BottomCenter"], ["LeftMiddle", "RightMiddle"]);
-        _addEndpoints("Window2", ["LeftMiddle", "BottomCenter"], ["TopCenter", "RightMiddle"]);
-        _addEndpoints("Window3", ["RightMiddle", "BottomCenter"], ["LeftMiddle", "TopCenter"]);
-        _addEndpoints("Window1", ["LeftMiddle", "RightMiddle"], ["TopCenter", "BottomCenter"]);
+        _addEndpoints("Window4", ["BottomCenter"], ["TopCenter"]);
+        _addEndpoints("Window2", ["BottomCenter"], ["TopCenter"]);
+        _addEndpoints("Window3", ["BottomCenter"], ["TopCenter"]);
+        _addEndpoints("Window1", ["LeftMiddle", "RightMiddle"], ["TopCenter"]);
 
         // listen for new connections; initialise them the same way we initialise the connections at startup.
         instance.bind("connection", function (connInfo, originalEvent) {
@@ -117,12 +119,14 @@ jsPlumb.ready(function () {
         //jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });
 
         // connect a few up
+        /*
         instance.connect({uuids: ["Window2BottomCenter", "Window3TopCenter"], editable: true});
         instance.connect({uuids: ["Window2LeftMiddle", "Window4LeftMiddle"], editable: true});
         instance.connect({uuids: ["Window4TopCenter", "Window4RightMiddle"], editable: true});
         instance.connect({uuids: ["Window3RightMiddle", "Window2RightMiddle"], editable: true});
         instance.connect({uuids: ["Window4BottomCenter", "Window1TopCenter"], editable: true});
         instance.connect({uuids: ["Window3BottomCenter", "Window1BottomCenter"], editable: true});
+        */
         //
 
         //

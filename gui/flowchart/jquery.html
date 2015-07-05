@@ -6,16 +6,29 @@
         <meta http-equiv="content-type" content="text/html;charset=utf-8" />
         <link rel="stylesheet" href="jsplumb.css">
         <link rel="stylesheet" href="demo.css">
+        <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
     <body data-demo-id="flowchart" data-library="jquery">
         
+        <div id="toolbar">
+            
+            <h4>Decision box</h4>
+            <div id="decision" class="diamond drag"></div>
+            <h4>Input box</h4>
+            <div id="input" class="parallelogram  drag"></div>
+            <h4>Output box</h4>
+            <div id="output" class="parallelogram  drag"></div>
+            <h4>Processing box</h4>
+            <div id="process" class="rectangle  drag"></div>
+            <h4>Connector</h4>
+            <div id="connector" class="circle drag"></div>
+
+        </div>
+
         <div id="main">
             <!-- demo -->
             <div class="demo flowchart-demo" id="flowchart-demo">
-                <div class="window" id="flowchartWindow1"><strong>1</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow2"><strong>2</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow3"><strong>3</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow4"><strong>4</strong><br/><br/></div>
+               
             </div>
             <!-- /demo -->
         </div>
@@ -26,6 +39,7 @@
         <script src="jquery-1.9.0-min.js"></script>
         <script src="jquery-ui-1.9.2.min.js"></script>
         <script src="jquery.ui.touch-punch-0.2.2.min.js"></script> 
+        <script src="jquery.jsPlumb-1.7.5-min.js "></script>
 
         <!-- JS -->
         <!-- support lib for bezier stuff -->
@@ -71,10 +85,202 @@
 
 
 
-        <!--  demo code -->
-        <script src="demo.js"></script>
+        <!--  demo code 
+        <script src="demo.js"></script> -->
+
+        <script type="text/javascript">
+
+        jsPlumb.ready(function () 
+        {
+            var instance = jsPlumb.getInstance({
+                // default drag options
+                DragOptions: { cursor: 'pointer', zIndex: 2000 },
+                // the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
+                // case it returns the 'labelText' member that we set on each connection in the 'init' method below.
+                ConnectionOverlays: [
+                    [ "Arrow", { location: 1 } ],
+                    [ "Label", {
+                        location: 0.1,
+                        id: "label",
+                        cssClass: "aLabel"
+                    }]
+                ],
+                Container: "flowchart-demo"
+            });
+
+            var basicType = {
+                connector: "StateMachine",
+                paintStyle: { strokeStyle: "red", lineWidth: 4 },
+                hoverPaintStyle: { strokeStyle: "blue" },
+                overlays: [
+                    "Arrow"
+                ]
+            };
+            instance.registerConnectionType("basic", basicType);
+
+            // this is the paint style for the connecting lines..
+            var connectorPaintStyle = {
+                    lineWidth: 4,
+                    strokeStyle: "#61B7CF",
+                    joinstyle: "round",
+                    outlineColor: "white",
+                    outlineWidth: 2
+                },
+            // .. and this is the hover style.
+                connectorHoverStyle = {
+                    lineWidth: 4,
+                    strokeStyle: "#216477",
+                    outlineWidth: 2,
+                    outlineColor: "white"
+                },
+                endpointHoverStyle = {
+                    fillStyle: "#216477",
+                    strokeStyle: "#216477"
+                },
+            // the definition of source endpoints (the small blue ones)
+                sourceEndpoint = {
+                    endpoint: "Dot",
+                    paintStyle: {
+                        strokeStyle: "#7AB02C",
+                        fillStyle: "transparent",
+                        radius: 7,
+                        lineWidth: 3
+                    },
+                    isSource: true,
+                    isTarget: false,
+                    connector: [ "Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true } ],
+                    connectorStyle: connectorPaintStyle,
+                    hoverPaintStyle: endpointHoverStyle,
+                    connectorHoverStyle: connectorHoverStyle,
+                    dragOptions: {},
+                    overlays: [
+                        [ "Label", {
+                            location: [0.5, 1.5],
+                            label: "Drag",
+                            cssClass: "endpointSourceLabel"
+                        } ]
+                    ]
+                },
+            // the definition of target endpoints (will appear when the user drags a connection)
+                targetEndpoint = {
+                    endpoint: "Dot",
+                    paintStyle: { fillStyle: "#7AB02C", radius: 11 },
+                    hoverPaintStyle: endpointHoverStyle,
+                    maxConnections: -1,
+                    dropOptions: { hoverClass: "hover", activeClass: "active" },
+                    isSource: false,
+                    isTarget: true,
+                    overlays: [
+                        [ "Label", { location: [0.5, -0.5], label: "Drop", cssClass: "endpointTargetLabel" } ]
+                    ]
+                },
+            init = function (connection) {
+                    console.log(connection.sourceId+"?");
+                    connection.getOverlay("label").setLabel(connection.sourceId.substring(9) + "-" + connection.targetId.substring(9));
+                };
 
 
+            var $flowchart = "#flowchart-demo" ;
+            var $toolbar = "#toolbar";
+            var $dcobj = ".drag";
+            var $dobj = ".obj";
+            var $str = "started moving";
+            var $arr = 0;
+
+            $($dcobj).draggable({
+                revert: "invalid", // when not dropped, the item will revert back to its initial position
+                containment: $flowchart+" " + $toolbar,
+                helper: "clone",
+                cursor: "move"
+            });
+
+            
+            $($flowchart).droppable({
+                accept: $dcobj,
+                activeClass: "ui-state-highlight",
+                drop: function( event, ui ) {
+                    
+                    var newDiv = $(ui.helper).clone(false).removeClass('ui-draggable ui-draggable-handle ui-draggable-dragging drag')
+                    newDiv.addClass("obj");
+                    newDiv.attr( "id", function( arr ) 
+                        {
+                            $arr = $arr + 1;
+                            return "flowchart" + $arr;
+                        })
+                       //.css({position:'relative', left:0, top:0});            
+                    $(this).append(newDiv);
+                    //_addEndpoints($(newDiv), ["BottomCenter"], ["TopCenter"]);
+                    //instance.draggable(".obj");
+                    /*jsPlumb.addEndpoint($(newDiv), targetEndpoint);
+                    jsPlumb.addEndpoint($(newDiv), sourceEndpoint);
+                    jsPlumb.draggable($(newDiv));*/
+                    /*$(".obj").draggable({
+                        containment: $flowchart,
+                        cursor: "move"
+                    });*/
+                    
+
+                    // suspend drawing and initialise.
+                    instance.batch(function () 
+                    {
+
+                        
+                        console.log($(newDiv).attr('id'));
+                        var sourceUUID = "" + $(newDiv).attr('id') + "BottomCenter";
+                        var targetUUID = "" + $(newDiv).attr('id') + "TopCenter";
+                        instance.addEndpoint("" + $(newDiv).attr('id'), sourceEndpoint, {anchors: ["BottomCenter", "Continuous"], uuid: sourceUUID});
+                        instance.addEndpoint("" + $(newDiv).attr('id'), targetEndpoint, { anchors:["TopCenter", "Continuous"], uuid: targetUUID });
+
+                        instance.draggable(document.querySelectorAll("#"+$(newDiv).attr('id')), { grid: [20, 20] });
+                        //instance.repaintEverything();
+                        // listen for new connections; initialise them the same way we initialise the connections at startup.
+                        instance.bind("connection", function (connInfo, originalEvent) {
+                            init(connInfo.connection);
+                        });
+
+                        // make all the window divs draggable
+                        //instance.draggable(jsPlumb.getSelector(".flowchart-demo .window"), { grid: [20, 20] });
+                        // THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector
+                        // method, or document.querySelectorAll:
+                        //jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });
+
+                        //
+                        // listen for clicks on connections, and offer to delete connections on click.
+                        //
+                        instance.bind("click", function (conn, originalEvent) {
+                           // if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
+                             //   instance.detach(conn);
+                             console.log("1");
+                            conn.toggleType("basic");
+                        });
+
+                        instance.bind("connectionDrag", function (connection) {
+                            console.log("connection " + connection.id + " is being dragged. suspendedElement is ", connection.suspendedElement, " of type ", connection.suspendedElementType);
+                        });
+
+                        instance.bind("connectionDragStop", function (connection) {
+                            console.log("connection " + connection.id + " was dragged");
+                        });
+
+                        instance.bind("connectionMoved", function (params) {
+                            console.log("connection " + params.connection.id + " was moved");
+                        });
+                        jsPlumb.fire("jsPlumbDemoLoaded", instance);
+                    });
+
+                    
+                        
+
+
+                }
+            });
+                 
+            instance.repaintEverything();  
+        });
+
+            
+                
+        </script>
 
     </body>
 </html>
