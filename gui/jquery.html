@@ -28,6 +28,11 @@
         <div id="main">
             <!-- demo -->
             <div class="demo flowchart-demo" id="flowchart-demo">
+                <div id="enum" style="float:right;width:300px;height:300px;background-color:blue;"></div>
+                <div id="remove" style="float:right;width:300px;height:300px;background-color:yellow;"></div>
+                <br>
+
+
                
             </div>
             <!-- /demo -->
@@ -186,6 +191,8 @@
             var $dobj = ".obj";
             var $str = "started moving";
             var $arr = 0;
+            var $rem_area = "#remove";
+            var $enuma = "#enum"
 
             $($dcobj).draggable({
                 revert: "invalid", // when not dropped, the item will revert back to its initial position
@@ -194,6 +201,36 @@
                 cursor: "move"
             });
 
+            $($rem_area).droppable({
+                drop: function(event, ui)
+                {
+                    var Div = $(ui.helper);
+                    var id = Div.attr('id');
+                    console.log(id);
+                    instance.detachAllConnections(id);
+                    instance.removeAllEndpoints(id);
+                    $("#"+id).remove();  
+
+                }
+            });
+            $($enuma).droppable({
+                drop: function(event, ui)
+                {
+                    var Div = $(ui.helper);
+                    var id = Div.attr('id');
+                    treestruct(id);
+                }
+            });
+
+            treestruct = function(id)
+            {
+                console.log('now starting to find neighbours of :'+id);
+                instance.select({source:id}).each(function(connection) 
+                {
+                    console.log('neighbour:' + connection.targetId);
+                    treestruct(connection.targetId);
+                });
+            };
             
             $($flowchart).droppable({
                 accept: $dcobj,
@@ -275,7 +312,7 @@
                 }
             });
                  
-            instance.repaintEverything();  
+            //instance.repaintEverything();  
         });
 
             
