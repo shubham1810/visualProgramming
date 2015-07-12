@@ -10,6 +10,9 @@
     <body data-demo-id="flowchart" data-library="jquery">
         
         <div id="toolbar">
+            <h4>Flowchart Endpoints</h4>
+            <div id="start" class="oval drag">Start</div>
+            <div id="end" class="oval drag">End</div>
             <h4>Decision box</h4>
             <div id="decision" class="diamond1 drag"><img src="diamond_shape.jpg" style="max-width:100%;max-height:100%;"></div>
             <h4>Input box</h4>
@@ -18,8 +21,6 @@
             <div id="output" class="parallelogram  drag"></div>
             <h4>Processing box</h4>
             <div id="process" class="rectangle  drag"></div>
-            <h4>Connector</h4>
-            <div id="connector" class="circle drag"></div>
         </div>
 
         <div id="main">
@@ -29,9 +30,6 @@
                     <div id="message" ></div>
                 </div>
                 <div id="remove" style="float:right;width:300px;height:300px;background-color:yellow;">drag here to delete element </div>
-                <div id="fstart" class="oval" style="float:">Start</div>
-                <br><br><br><br>
-                <div id="fend" class="oval" style="position: absolute;bottom: 0;right:0; ">End</div>
                 
             </div>
         </div>
@@ -178,19 +176,7 @@
                 connection.getOverlay("label").setLabel(connection.sourceId.substring(9) + "-" + connection.targetId.substring(9));
 
             };
-            // suspend drawing and initialise.
-            instance.batch(function () 
-            {
-                var sourceUUID = "fstartBottomCenter";
-                var targetUUID = "fendTopCenter";
-                instance.addEndpoint("fstart",sourceEndpoint,{anchors: ["BottomCenter", "Continuous"],uuid: sourceUUID});
-                instance.addEndpoint("fend",targetEndpoint,{ anchors:["TopCenter", "Continuous"],uuid: targetUUID});
-
-                //instance.draggable(document.querySelectorAll(".oval"), { grid: [20, 20] });
-                jsPlumb.fire("jsPlumbDemoLoaded", instance);
-            });
-
-
+           
             var $flowchart = "#flowchart-demo" ;
             var $toolbar = "#toolbar";
             var $dcobj = ".drag";
@@ -199,41 +185,17 @@
             var $arr = 0;
             var $rem_area = "#remove";
             var $enuma = "#enum";
-
-            /*$(".oval").draggable(
-            {
-                cursor: "move",
-                
-                stop :function(e)
-                {
-                    // suspend drawing and initialise.
-                    instance.batch(function () 
-                    {
-                        instance.bind("connection", function (connInfo, originalEvent) {
-                            init(connInfo.connection);
-                        });
-
-                        instance.bind("click", function (conn, originalEvent) {
-                            console.log("1");
-                            conn.toggleType("basic");
-                        });
-
-                        //jsPlumb.fire("jsPlumbDemoLoaded", instance);
-                    });
-                }
-            });*/
             
-                
-
-
             $($dcobj).draggable({
                 revert: "invalid", // when not dropped, the item will revert back to its initial position
                 containment: $flowchart+" " + $toolbar,
                 helper: "clone",
                 cursor: "move"
             });
-
-
+             $( ".obj" ).resizable(
+            {
+                containment: $flowchart
+            });
 
             $($rem_area).droppable({
                 accept :".obj",
@@ -241,10 +203,14 @@
                 {
                     var Div = $(ui.helper);
                     var id = Div.attr('id');
-                    console.log(id);
-                    instance.detachAllConnections(id);
-                    instance.removeAllEndpoints(id);
-                    $("#"+id).remove();  
+                    if(id !='fstart' && id != 'fend')
+                    {
+                        console.log(id);
+                        instance.detachAllConnections(id);
+                        instance.removeAllEndpoints(id);
+                        $("#"+id).remove();  
+                    }
+                    
 
                 }
             });
@@ -299,10 +265,13 @@
                     for(i=0;i<nodes.length;i++)
                     {
                         var id = $(nodes[i]).attr('id');
-                        id = id.substring(9);
-                        id = parseInt(id);
-                        detach[id] = 0;
-                        console.log(id);
+                        if (id != 'fstart' && id != 'fend')
+                        {
+                            id = id.substring(9);
+                            id = parseInt(id);
+                            detach[id] = 0;
+                            console.log(id);
+                        }
                     }
                     instance.select().each(function(connection) 
                     {
@@ -328,20 +297,24 @@
                     for(i=0;i<nodes.length;i++)
                     {
                         var id = $(nodes[i]).attr('id');
-                        id = id.substring(9);
-                        id = parseInt(id);
-                        
-                        if($(nodes[i]).hasClass("diamond1") == true && detach[id] < 3)
+                        if (id != 'fstart' && id != 'fend')
                         {
-                            flag =  1;
-                            aux += ' flowchart'+id;
+                            
+                            id = id.substring(9);
+                            id = parseInt(id);
+                            
+                            if($(nodes[i]).hasClass("diamond1") == true && detach[id] < 3)
+                            {
+                                flag =  1;
+                                aux += ' flowchart'+id;
+                            }
+                            else if(detach[id] < 2 || typeof detach[id] == 'undefined')
+                            {
+                                flag =  1;
+                                aux += ' flowchart'+id;
+                            }
+                            console.log("3:" + detach[id]);
                         }
-                        else if(detach[id] < 2 || typeof detach[id] == 'undefined')
-                        {
-                            flag =  1;
-                            aux += ' flowchart'+id;
-                        }
-                        console.log("3:" + detach[id]);
 
                     }
                     if(flag==1)
@@ -356,22 +329,50 @@
             $('#evaluate').click(expEvaluate);
 
             
-            
+
             
             $($flowchart).droppable(
             {
-                accept: $dcobj,
+                accept: function(d) 
+                { 
+                    if(d.hasClass("oval"))
+                    {
+                        var fs = $("#flowchart-demo").children('#fstart').length;
+                        var fe = $("#flowchart-demo").children('#fend').length;
+                        var id = "f" + d.attr('id');
+                        console.log(fs);
+                        if(id == 'fstart' && fs <1)
+                            return true;
+                        else if(id == 'fend' && fe <1)
+                            return true;
+                        else
+                            return false;
+                    }
+                    else if (d.hasClass("drag"))
+                        return true;
+                },
                 activeClass: "ui-state-highlight",
                 drop: function( event, ui ) 
                 {
-                    
                     var newDiv = $(ui.helper).clone(false).removeClass('ui-draggable ui-draggable-handle ui-draggable-dragging drag');
                     newDiv.addClass("obj");
-                    newDiv.attr( "id", function( arr ) 
+                    if($(newDiv).text() == "")
                     {
-                        $arr = $arr + 1;
-                        return "flowchart" + $arr;
-                    });
+                        newDiv.attr( "id", function( arr ) 
+                        {
+                            $arr = $arr + 1;
+                            return "flowchart" + $arr;
+                        });
+                    }
+                    else
+                    { 
+                        newDiv.attr("id",function( arr ) 
+                        {
+                            $arr = $arr + 1;
+                            return "f"+$(newDiv).text().toLowerCase() ;
+                        }); 
+                    }
+                    
                     var pos = $(ui.helper).offset();
                     var out_pos = $(this).offset();
                     $(newDiv).css(
@@ -379,12 +380,10 @@
                         "left": pos.left - out_pos.left,
                         "top": pos.top- out_pos.top
                     });
-                    //alert($(newDiv).offset());
                     
                          
                     $(this).append(newDiv);
                     
-                    // suspend drawing and initialise.
                     instance.batch(function () 
                     {
 
@@ -420,6 +419,22 @@
                             });
                             instance.addEndpoint("" + $(newDiv).attr('id'), targetEndpoint, { anchors:["TopCenter", "Continuous"], uuid: targetUUID });
                         }
+                        else if ($(newDiv).hasClass("oval") == true)
+                        {
+                            id = $(newDiv).attr('id');
+                            
+                            if(id == 'fstart' )
+                            {
+                                var sourceUUID = "" + $(newDiv).attr('id') + "BottomCenter";
+                                instance.addEndpoint("" + $(newDiv).attr('id'),sourceEndpoint,{anchors: ["BottomCenter", "Continuous"],uuid: sourceUUID});
+                                
+                            }
+                            if(id == 'fend' )
+                            {
+                                 var targetUUID = "" + $(newDiv).attr('id') + "TopCenter";
+                                 instance.addEndpoint("" + $(newDiv).attr('id'),targetEndpoint,{ anchors:["TopCenter", "Continuous"],uuid: targetUUID});
+                            }
+                        }
                         else
                         {
                             var sourceUUID = "" + $(newDiv).attr('id') + "BottomCenter";
@@ -428,28 +443,12 @@
                             instance.addEndpoint("" + $(newDiv).attr('id'), targetEndpoint, { anchors:["TopCenter", "Continuous"], uuid: targetUUID });
                         }
                         
-                        
-
                         instance.draggable(document.querySelectorAll("#"+$(newDiv).attr('id')), { grid: [20, 20] });
-                        //instance.repaintEverything();
-                        // listen for new connections; initialise them the same way we initialise the connections at startup.
                         instance.bind("connection", function (connInfo, originalEvent) {
                             init(connInfo.connection);
                         });
-
-                        // make all the window divs draggable
-                        //instance.draggable(jsPlumb.getSelector(".flowchart-demo .window"), { grid: [20, 20] });
-                        // THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector
-                        // method, or document.querySelectorAll:
-                        //jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });
-
-                        //
-                        // listen for clicks on connections, and offer to delete connections on click.
-                        //
                         instance.bind("click", function (conn, originalEvent) {
-                           // if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
-                             //   instance.detach(conn);
-                             console.log("1");
+                            console.log("1");
                             conn.toggleType("basic");
                         });
 
@@ -467,9 +466,7 @@
                         jsPlumb.fire("jsPlumbDemoLoaded", instance);
                     });
                 }
-            });
-                 
-            //instance.repaintEverything();  
+            }); 
         });
 
             
