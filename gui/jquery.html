@@ -1,7 +1,6 @@
 <!doctype html>
 <html>
     <head>
-
         <title>jsPlumb 1.7.5 demo - jQuery</title>
         <meta http-equiv="content-type" content="text/html;charset=utf-8" />
         <link rel="stylesheet" href="jsplumb.css">
@@ -11,9 +10,8 @@
     <body data-demo-id="flowchart" data-library="jquery">
         
         <div id="toolbar">
-            
             <h4>Decision box</h4>
-            <div id="decision" class="diamond drag"></div>
+            <div id="decision" class="diamond1 drag"><img src="diamond_shape.jpg" style="max-width:100%;max-height:100%;"></div>
             <h4>Input box</h4>
             <div id="input" class="parallelogram  drag"></div>
             <h4>Output box</h4>
@@ -22,24 +20,21 @@
             <div id="process" class="rectangle  drag"></div>
             <h4>Connector</h4>
             <div id="connector" class="circle drag"></div>
-
         </div>
 
         <div id="main">
-            <!-- demo -->
             <div class="demo flowchart-demo" id="flowchart-demo">
-                <div id="enum" style="float:right;width:300px;height:300px;background-color:blue;"></div>
-                <div id="remove" style="float:right;width:300px;height:300px;background-color:yellow;"></div>
-                <br>
-
-
-               
+                <div id="enum" style="float:right;width:300px;height:300px;background-color:blue;">
+                    <div id="evaluate" style="border:3px solid black;width:100px;height:50px;">Start evaluating</div>
+                    <div id="message" ></div>
+                </div>
+                <div id="remove" style="float:right;width:300px;height:300px;background-color:yellow;">drag here to delete element </div>
+                <div id="fstart" class="oval" style="float:">Start</div>
+                <br><br><br><br>
+                <div id="fend" class="oval" style="position: absolute;bottom: 0;right:0; ">End</div>
+                
             </div>
-            <!-- /demo -->
         </div>
-
-
-
 
         <script src="jquery-1.9.0-min.js"></script>
         <script src="jquery-ui-1.9.2.min.js"></script>
@@ -81,28 +76,24 @@
         <!-- vml renderer -->
         <script src="extra/renderers-vml.js"></script>
 
-
         <!-- common adapter -->
         <script src="extra/base-library-adapter.js"></script>
         <!-- jquery jsPlumb adapter -->
         <script src="extra/jquery.jsPlumb.js"></script>
         <!-- /JS -->
 
-
-
-        <!--  demo code 
-        <script src="demo.js"></script> -->
-
         <script type="text/javascript">
 
         jsPlumb.ready(function () 
         {
-            var instance = jsPlumb.getInstance({
+            var instance = jsPlumb.getInstance(
+            {
                 // default drag options
                 DragOptions: { cursor: 'pointer', zIndex: 2000 },
                 // the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
                 // case it returns the 'labelText' member that we set on each connection in the 'init' method below.
-                ConnectionOverlays: [
+                ConnectionOverlays: 
+                [
                     [ "Arrow", { location: 1 } ],
                     [ "Label", {
                         location: 0.1,
@@ -113,7 +104,8 @@
                 Container: "flowchart-demo"
             });
 
-            var basicType = {
+            var basicType = 
+            {
                 connector: "StateMachine",
                 paintStyle: { strokeStyle: "red", lineWidth: 4 },
                 hoverPaintStyle: { strokeStyle: "blue" },
@@ -121,6 +113,7 @@
                     "Arrow"
                 ]
             };
+
             instance.registerConnectionType("basic", basicType);
 
             // this is the paint style for the connecting lines..
@@ -179,10 +172,23 @@
                         [ "Label", { location: [0.5, -0.5], label: "Drop", cssClass: "endpointTargetLabel" } ]
                     ]
                 },
-            init = function (connection) {
-                    console.log(connection.sourceId+"?");
-                    connection.getOverlay("label").setLabel(connection.sourceId.substring(9) + "-" + connection.targetId.substring(9));
-                };
+            init = function (connection) 
+            {
+                console.log(connection.sourceId+"?");
+                connection.getOverlay("label").setLabel(connection.sourceId.substring(9) + "-" + connection.targetId.substring(9));
+
+            };
+            // suspend drawing and initialise.
+            instance.batch(function () 
+            {
+                var sourceUUID = "fstartBottomCenter";
+                var targetUUID = "fendTopCenter";
+                instance.addEndpoint("fstart",sourceEndpoint,{anchors: ["BottomCenter", "Continuous"],uuid: sourceUUID});
+                instance.addEndpoint("fend",targetEndpoint,{ anchors:["TopCenter", "Continuous"],uuid: targetUUID});
+
+                //instance.draggable(document.querySelectorAll(".oval"), { grid: [20, 20] });
+                jsPlumb.fire("jsPlumbDemoLoaded", instance);
+            });
 
 
             var $flowchart = "#flowchart-demo" ;
@@ -192,7 +198,33 @@
             var $str = "started moving";
             var $arr = 0;
             var $rem_area = "#remove";
-            var $enuma = "#enum"
+            var $enuma = "#enum";
+
+            /*$(".oval").draggable(
+            {
+                cursor: "move",
+                
+                stop :function(e)
+                {
+                    // suspend drawing and initialise.
+                    instance.batch(function () 
+                    {
+                        instance.bind("connection", function (connInfo, originalEvent) {
+                            init(connInfo.connection);
+                        });
+
+                        instance.bind("click", function (conn, originalEvent) {
+                            console.log("1");
+                            conn.toggleType("basic");
+                        });
+
+                        //jsPlumb.fire("jsPlumbDemoLoaded", instance);
+                    });
+                }
+            });*/
+            
+                
+
 
             $($dcobj).draggable({
                 revert: "invalid", // when not dropped, the item will revert back to its initial position
@@ -201,7 +233,10 @@
                 cursor: "move"
             });
 
+
+
             $($rem_area).droppable({
+                accept :".obj",
                 drop: function(event, ui)
                 {
                     var Div = $(ui.helper);
@@ -213,6 +248,7 @@
 
                 }
             });
+
             $($enuma).droppable({
                 drop: function(event, ui)
                 {
@@ -222,51 +258,177 @@
                 }
             });
 
+
             treestruct = function(id)
             {
+                var flag = 0;
+                if (id == 'fend')
+                    return 1;
                 console.log('now starting to find neighbours of :'+id);
                 instance.select({source:id}).each(function(connection) 
                 {
                     console.log('neighbour:' + connection.targetId);
-                    treestruct(connection.targetId);
+                    flag = flag || treestruct(connection.targetId);
                 });
+                if (flag >0)
+                    return flag + 1;
+                return 0;
             };
+
+            expEvaluate = function()
+            {
+                var flag = 0;
+                var str = "";
+                flag = treestruct('fstart');
+                if (flag != 0)
+                {
+                    if(flag > 2)
+                        str = "Flow chart is syntactically right";
+                    else
+                        str = "Flow chart has no nodes";
+                }
+                else
+                    str = "Flowchart is incomplete";
+
+                if(flag>2)
+                {
+                    var detach = [];
+                    var flag = 0;
+                    var aux = "";
+                    var nodes = $("#flowchart-demo").children('.obj');
+                    for(i=0;i<nodes.length;i++)
+                    {
+                        var id = $(nodes[i]).attr('id');
+                        id = id.substring(9);
+                        id = parseInt(id);
+                        detach[id] = 0;
+                        console.log(id);
+                    }
+                    instance.select().each(function(connection) 
+                    {
+                        id = connection.targetId;
+                        console.log(id);
+                        if(id != 'fstart' && id != 'fend')
+                        {
+                            id = parseInt(id.substring(9));
+                            detach[id] += 1;
+                            console.log("1:"+id);
+                        }
+                        id = connection.sourceId;
+                        console.log(id);
+                        if(id != 'fstart' && id != 'fend')
+                        {
+                            id = parseInt(id.substring(9));
+                            detach[id] += 1;
+                            console.log("2:"+id);
+                        }
+                        
+                        
+                    });
+                    for(i=0;i<nodes.length;i++)
+                    {
+                        var id = $(nodes[i]).attr('id');
+                        id = id.substring(9);
+                        id = parseInt(id);
+                        
+                        if($(nodes[i]).hasClass("diamond1") == true && detach[id] < 3)
+                        {
+                            flag =  1;
+                            aux += ' flowchart'+id;
+                        }
+                        else if(detach[id] < 2 || typeof detach[id] == 'undefined')
+                        {
+                            flag =  1;
+                            aux += ' flowchart'+id;
+                        }
+                        console.log("3:" + detach[id]);
+
+                    }
+                    if(flag==1)
+                        str = "some nodes haven't been connected" + aux;
+
+                }
+
+                document.getElementById('message').innerHTML = str;
+               
+            };
+
+            $('#evaluate').click(expEvaluate);
+
             
-            $($flowchart).droppable({
+            
+            
+            $($flowchart).droppable(
+            {
                 accept: $dcobj,
                 activeClass: "ui-state-highlight",
-                drop: function( event, ui ) {
+                drop: function( event, ui ) 
+                {
                     
-                    var newDiv = $(ui.helper).clone(false).removeClass('ui-draggable ui-draggable-handle ui-draggable-dragging drag')
+                    var newDiv = $(ui.helper).clone(false).removeClass('ui-draggable ui-draggable-handle ui-draggable-dragging drag');
                     newDiv.addClass("obj");
                     newDiv.attr( "id", function( arr ) 
-                        {
-                            $arr = $arr + 1;
-                            return "flowchart" + $arr;
-                        })
-                       //.css({position:'relative', left:0, top:0});            
-                    $(this).append(newDiv);
-                    //_addEndpoints($(newDiv), ["BottomCenter"], ["TopCenter"]);
-                    //instance.draggable(".obj");
-                    /*jsPlumb.addEndpoint($(newDiv), targetEndpoint);
-                    jsPlumb.addEndpoint($(newDiv), sourceEndpoint);
-                    jsPlumb.draggable($(newDiv));*/
-                    /*$(".obj").draggable({
-                        containment: $flowchart,
-                        cursor: "move"
-                    });*/
+                    {
+                        $arr = $arr + 1;
+                        return "flowchart" + $arr;
+                    });
+                    var pos = $(ui.helper).offset();
+                    var out_pos = $(this).offset();
+                    $(newDiv).css(
+                    {
+                        "left": pos.left - out_pos.left,
+                        "top": pos.top- out_pos.top
+                    });
+                    //alert($(newDiv).offset());
                     
-
+                         
+                    $(this).append(newDiv);
+                    
                     // suspend drawing and initialise.
                     instance.batch(function () 
                     {
 
-                        
                         console.log($(newDiv).attr('id'));
-                        var sourceUUID = "" + $(newDiv).attr('id') + "BottomCenter";
-                        var targetUUID = "" + $(newDiv).attr('id') + "TopCenter";
-                        instance.addEndpoint("" + $(newDiv).attr('id'), sourceEndpoint, {anchors: ["BottomCenter", "Continuous"], uuid: sourceUUID});
-                        instance.addEndpoint("" + $(newDiv).attr('id'), targetEndpoint, { anchors:["TopCenter", "Continuous"], uuid: targetUUID });
+                        if ($(newDiv).hasClass("diamond1") == true)
+                        {
+                            var source1UUID = "" + $(newDiv).attr('id') + "LeftMiddle";
+                            var source2UUID = "" + $(newDiv).attr('id') + "RightMiddle";
+                            var targetUUID = "" + $(newDiv).attr('id') + "TopCenter";
+                            instance.addEndpoint(""+$(newDiv).attr('id'),sourceEndpoint,{
+                                anchors: ["LeftMiddle", "Continuous"],
+                                uuid: source1UUID,
+                                overlays: 
+                                [
+                                    [ "Label", {
+                                        location: [-5,-5],
+                                        label: "False",
+                                        cssClass: "endpointSourceLabel"
+                                    } ]
+                                ]
+                            });
+                            instance.addEndpoint(""+$(newDiv).attr('id'),sourceEndpoint,{
+                                anchors:["RightMiddle", "Continuous"],
+                                uuid: source2UUID ,
+                                overlays: 
+                                [
+                                    [ "Label", {
+                                        location: [-0.5,-1.5],
+                                        label: "True",
+                                        cssClass: "endpointSourceLabel"
+                                    } ]
+                                ]
+                            });
+                            instance.addEndpoint("" + $(newDiv).attr('id'), targetEndpoint, { anchors:["TopCenter", "Continuous"], uuid: targetUUID });
+                        }
+                        else
+                        {
+                            var sourceUUID = "" + $(newDiv).attr('id') + "BottomCenter";
+                            var targetUUID = "" + $(newDiv).attr('id') + "TopCenter";
+                            instance.addEndpoint("" + $(newDiv).attr('id'), sourceEndpoint, {anchors: ["BottomCenter", "Continuous"], uuid: sourceUUID});
+                            instance.addEndpoint("" + $(newDiv).attr('id'), targetEndpoint, { anchors:["TopCenter", "Continuous"], uuid: targetUUID });
+                        }
+                        
+                        
 
                         instance.draggable(document.querySelectorAll("#"+$(newDiv).attr('id')), { grid: [20, 20] });
                         //instance.repaintEverything();
@@ -304,11 +466,6 @@
                         });
                         jsPlumb.fire("jsPlumbDemoLoaded", instance);
                     });
-
-                    
-                        
-
-
                 }
             });
                  

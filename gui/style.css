@@ -21,6 +21,12 @@
 			border-radius: 50px; 
 			z-index: 21;
 		}
+		.diamond1
+		{
+			width: 80px; 
+			height: 80px; 
+			z-index: 21;
+		}
 		.diamond
 		{
 			/*width: 0;
@@ -101,4 +107,16 @@
 			width:200px;
 			height: auto;
 			float: left;
+		}
+		.oval{ 
+			width: 100px; 
+			height: 50px; 
+			background: red; 
+			-moz-border-radius: 100px / 50px; 
+			-webkit-border-radius: 100px / 50px; 
+			border-radius: 100px / 50px; 
+			z-index: 21;
+			text-align: center;
+			vertical-align: middle;
+			line-height: 50px; 
 		}
